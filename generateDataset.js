@@ -9,7 +9,7 @@ const githubBaseUrl = 'https://raw.githubusercontent.com/DevTaiwo18/car-damage-i
 const baseImageFolder = path.join(process.cwd(), 'OBA.ai Photos');
 const outputFile = path.join(process.cwd(), 'cardata.jsonl');
 
-// Expanded questions for car damage analysis
+// Expanded questions for car damage analysis, including questions about image quality
 const questions = [
     "What type of damage is this?",
     "Is this repairable?",
@@ -30,8 +30,32 @@ const questions = [
     "Does the damage impact the car's resale value?",
     "What parts of the car will need to be checked after this type of damage?",
     "Does this damage affect the safety of the vehicle?",
-    "Can this damage be fixed with DIY methods, or does it require a professional?"
+    "Can this damage be fixed with DIY methods, or does it require a professional?",
+    // New questions related to image quality
+    "Is this image too blurry to analyze?",
+    "Does this image have enough light to capture the damage?",
+    "Is the damage visible enough in this image?",
+    "Do we need a closer shot to see the damage?",
+    "Is this a wide-angle shot as requested?",
+    "Is this a close-up image of the damage?",
+    "Do we need to retake this image for clarity?"
 ];
+
+// Possible responses the assistant might provide based on the analysis
+const assistantResponses = [
+    "The damage is visible, and it's a dent on the rear door.",
+    "This image is too blurry; please retake the photo.",
+    "The lighting in this image is poor. Please ensure better lighting.",
+    "The damage is too far away to be analyzed. Please take a closer shot.",
+    "The image quality is good, and the damage is clearly visible.",
+    "This is a close-up shot of the damage; it's clear.",
+    "The damage captured is minor, and the repair looks simple."
+];
+
+// Function to randomly pick an assistant response
+function getAssistantResponse() {
+    return assistantResponses[Math.floor(Math.random() * assistantResponses.length)];
+}
 
 // Function to generate JSONL content with GitHub URLs
 function generateDataset() {
@@ -62,7 +86,7 @@ function generateDataset() {
                             messages: [
                                 {
                                     role: "system",
-                                    content: "You are an assistant that identifies car damage."
+                                    content: "You are an assistant that identifies car damage and assesses image quality."
                                 },
                                 {
                                     role: "user",
@@ -81,7 +105,7 @@ function generateDataset() {
                                 },
                                 {
                                     role: "assistant",
-                                    content: "This is car damage analysis result."
+                                    content: getAssistantResponse()
                                 }
                             ]
                         }));
