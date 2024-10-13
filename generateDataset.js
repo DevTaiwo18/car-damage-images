@@ -31,7 +31,6 @@ const questions = [
     "What parts of the car will need to be checked after this type of damage?",
     "Does this damage affect the safety of the vehicle?",
     "Can this damage be fixed with DIY methods, or does it require a professional?",
-    // New questions related to image quality
     "Is this image too blurry to analyze?",
     "Does this image have enough light to capture the damage?",
     "Is the damage visible enough in this image?",
