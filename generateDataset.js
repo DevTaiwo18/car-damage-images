@@ -9,7 +9,7 @@ const githubBaseUrl = 'https://raw.githubusercontent.com/DevTaiwo18/car-damage-i
 const baseImageFolder = path.join(process.cwd(), 'OBA.ai Photos');
 const outputFile = path.join(process.cwd(), 'cardata.jsonl');
 
-// Expanded questions for car damage analysis, including questions about image quality
+// Expanded questions for car damage analysis and image quality
 const questions = [
     "What type of damage is this?",
     "Is this repairable?",
@@ -31,6 +31,7 @@ const questions = [
     "What parts of the car will need to be checked after this type of damage?",
     "Does this damage affect the safety of the vehicle?",
     "Can this damage be fixed with DIY methods, or does it require a professional?",
+    // Image quality questions
     "Is this image too blurry to analyze?",
     "Does this image have enough light to capture the damage?",
     "Is the damage visible enough in this image?",
@@ -40,20 +41,37 @@ const questions = [
     "Do we need to retake this image for clarity?"
 ];
 
-// Possible responses the assistant might provide based on the analysis
-const assistantResponses = [
+// Possible responses for car damage analysis
+const damageResponses = [
     "The damage is visible, and it's a dent on the rear door.",
+    "There is a deep scratch on the front bumper, which will likely require a full repaint.",
+    "The car has a minor dent on the right side, but it should be easy to repair.",
+    "This looks like a major dent near the wheel arch, which may affect the car's structural integrity.",
+    "The damage appears to be cosmetic only and does not seem to affect the car's performance.",
+    "This dent on the rear bumper is about 5 cm deep and may require replacement of the part."
+];
+
+// Possible responses for image quality feedback
+const qualityResponses = [
     "This image is too blurry; please retake the photo.",
     "The lighting in this image is poor. Please ensure better lighting.",
     "The damage is too far away to be analyzed. Please take a closer shot.",
     "The image quality is good, and the damage is clearly visible.",
     "This is a close-up shot of the damage; it's clear.",
-    "The damage captured is minor, and the repair looks simple."
+    "The image appears too dark to capture the details of the damage."
 ];
 
-// Function to randomly pick an assistant response
-function getAssistantResponse() {
-    return assistantResponses[Math.floor(Math.random() * assistantResponses.length)];
+// Function to randomly pick a response type
+function getAssistantResponse(folder) {
+    const isQualityIssue = folder.toLowerCase().includes('blur') || folder.toLowerCase().includes('low-light');
+
+    // If the folder name indicates a quality issue, prioritize quality responses
+    if (isQualityIssue) {
+        return qualityResponses[Math.floor(Math.random() * qualityResponses.length)];
+    }
+
+    // Otherwise, return a damage-related response
+    return damageResponses[Math.floor(Math.random() * damageResponses.length)];
 }
 
 // Function to generate JSONL content with GitHub URLs
@@ -104,7 +122,7 @@ function generateDataset() {
                                 },
                                 {
                                     role: "assistant",
-                                    content: getAssistantResponse()
+                                    content: getAssistantResponse(folder)
                                 }
                             ]
                         }));
