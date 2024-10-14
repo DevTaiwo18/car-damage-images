@@ -2,75 +2,35 @@ import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 
-// Base URL for your GitHub repository (replace with your GitHub username and repo)
+// Base URL for your GitHub repository
 const githubBaseUrl = 'https://raw.githubusercontent.com/DevTaiwo18/car-damage-images/main/OBA.ai%20Photos';
 
-// Path to the folder containing your subfolders with images
 const baseImageFolder = path.join(process.cwd(), 'OBA.ai Photos');
-const outputFile = path.join(process.cwd(), 'cardata.jsonl');
+const outputFile = path.join(process.cwd(), 'cardatav3.jsonl');
 
-// Expanded questions for car damage analysis and image quality
+// Expanded questions focusing on car damage analysis
 const questions = [
-    "What type of damage is this?",
-    "Is this repairable?",
-    "How severe is the damage?",
+    "How many dents are visible in this image?",
+    "What is the size of the largest dent?",
     "Which part of the car is damaged?",
-    "What is the estimated repair cost for this damage?",
-    "Is this damage cosmetic or structural?",
+    "How severe is the damage?",
     "Does this damage affect the vehicle’s performance?",
-    "What tools or materials are needed to fix this damage?",
-    "Would this damage be covered under insurance?",
+    "What is the estimated repair cost for this damage?",
     "Can this damage lead to more serious problems if left unfixed?",
-    "How long would it take to repair this damage?",
-    "Is this a common type of damage for this car model?",
-    "What caused this damage?",
-    "Can this part of the car be replaced easily?",
-    "Is this damage dangerous to drive with?",
-    "What is the approximate age of the damage?",
-    "Does the damage impact the car's resale value?",
-    "What parts of the car will need to be checked after this type of damage?",
-    "Does this damage affect the safety of the vehicle?",
-    "Can this damage be fixed with DIY methods, or does it require a professional?",
-    // Image quality questions
-    "Is this image too blurry to analyze?",
-    "Does this image have enough light to capture the damage?",
-    "Is the damage visible enough in this image?",
-    "Do we need a closer shot to see the damage?",
-    "Is this a wide-angle shot as requested?",
-    "Is this a close-up image of the damage?",
-    "Do we need to retake this image for clarity?"
+    "Would this damage be covered under insurance?"
 ];
 
-// Possible responses for car damage analysis
+// Possible responses focusing on damage analysis
 const damageResponses = [
-    "The damage is visible, and it's a dent on the rear door.",
-    "There is a deep scratch on the front bumper, which will likely require a full repaint.",
-    "The car has a minor dent on the right side, but it should be easy to repair.",
-    "This looks like a major dent near the wheel arch, which may affect the car's structural integrity.",
-    "The damage appears to be cosmetic only and does not seem to affect the car's performance.",
-    "This dent on the rear bumper is about 5 cm deep and may require replacement of the part."
+    "This image shows 3 dents. The largest dent is the size of a quarter.",
+    "The front bumper has a deep dent, approximately the size of a half-dollar.",
+    "There is a minor dent near the wheel arch, which shouldn't affect performance.",
+    "The rear door has a severe dent, which may require replacement.",
+    "The damage is mostly cosmetic, with scratches and a small dent on the hood."
 ];
 
-// Possible responses for image quality feedback
-const qualityResponses = [
-    "This image is too blurry; please retake the photo.",
-    "The lighting in this image is poor. Please ensure better lighting.",
-    "The damage is too far away to be analyzed. Please take a closer shot.",
-    "The image quality is good, and the damage is clearly visible.",
-    "This is a close-up shot of the damage; it's clear.",
-    "The image appears too dark to capture the details of the damage."
-];
-
-// Function to randomly pick a response type
-function getAssistantResponse(folder) {
-    const isQualityIssue = folder.toLowerCase().includes('blur') || folder.toLowerCase().includes('low-light');
-
-    // If the folder name indicates a quality issue, prioritize quality responses
-    if (isQualityIssue) {
-        return qualityResponses[Math.floor(Math.random() * qualityResponses.length)];
-    }
-
-    // Otherwise, return a damage-related response
+// Function to randomly pick a damage-related response
+function getAssistantResponse() {
     return damageResponses[Math.floor(Math.random() * damageResponses.length)];
 }
 
@@ -84,7 +44,6 @@ function generateDataset() {
 
         const jsonlEntries = [];
 
-        // Loop through each folder (category)
         folders.forEach((folder) => {
             const folderPath = path.join(baseImageFolder, folder);
 
@@ -103,7 +62,7 @@ function generateDataset() {
                             messages: [
                                 {
                                     role: "system",
-                                    content: "You are an assistant that identifies car damage and assesses image quality."
+                                    content: "You are an AI that analyzes car damage and provides detailed damage reports."
                                 },
                                 {
                                     role: "user",
@@ -122,13 +81,13 @@ function generateDataset() {
                                 },
                                 {
                                     role: "assistant",
-                                    content: getAssistantResponse(folder)
+                                    content: getAssistantResponse()
                                 }
                             ]
                         }));
                     });
 
-                    // After processing all images, write the entries to the JSONL file
+                    // Write the entries to the JSONL file
                     if (folders.indexOf(folder) === folders.length - 1) {
                         fs.writeFileSync(outputFile, jsonlEntries.join('\n'));
                         console.log(chalk.green(`Dataset has been written to ${outputFile}`));
